@@ -18,7 +18,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     cfg = load_setting(args.setting)
-    collate = CustomCollate(image_size=cfg.craft.image_size, save_preprocessed=True)
+    collate = CustomCollate(image_size=cfg.craft.image_size, save_data=True)
 
     train_set = CustomDataset(data_dir=cfg.train_data_path)
     train_dataloader = torch.utils.data.DataLoader(train_set, batch_size=args.batch_size,

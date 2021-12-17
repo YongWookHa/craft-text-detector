@@ -57,9 +57,10 @@ class CustomDataset(torch.utils.data.Dataset):
 
 
 class CustomCollate(object):
-    def __init__(self, image_size, save_preprocessed=False):
+    def __init__(self, image_size, load_preprocessed_data=False, save_data=False):
         self.image_size = image_size
-        self.save_preprocessed = save_preprocessed
+        self.load_preprocessed_data = load_preprocessed_data
+        self.save_data = save_data
 
         self.image_transform = transforms.Compose([
             transforms.ToTensor(),
@@ -72,7 +73,16 @@ class CustomCollate(object):
         """
         batch_big_image, batch_weight_character, batch_weight_affinity = [], [], []
 
-        if self.save_preprocessed:
+        if self.load_preprocessed_data:
+            for _, _, _, fn in batch:
+                big_image = np.load(fn.parent / f"{fn.stem}_{self.image_size}_image.npy")
+                weight_character = np.load(fn.parent / f"{fn.stem}_{self.image_size}_weight_character.npy")
+                weight_affinity = np.load(fn.parent / f"{fn.stem}_{self.image_size}_weight_affinity.npy")
+
+                batch_big_image.append(self.image_transform(Image.fromarray(big_image)))
+                batch_weight_character.append(weight_character)
+                batch_weight_affinity.append(weight_affinity)
+        else:
             for image, char_boxes, words, fn in batch:
                 char_boxes = np.transpose(char_boxes, (2, 1, 0))
                 big_image, small_image, character = self.resize(image, char_boxes, big_side=self.image_size)  # Resize the image
@@ -86,18 +96,10 @@ class CustomCollate(object):
                 weight_character = weight_character.astype(np.float32)
                 weight_affinity = weight_affinity.astype(np.float32)
 
-                np.save(fn.parent / f"{fn.stem}_{self.image_size}_image.npy" , big_image)
-                np.save(fn.parent / f"{fn.stem}_{self.image_size}_weight_character.npy", weight_character)
-                np.save(fn.parent / f"{fn.stem}_{self.image_size}_weight_affinity.npy", weight_affinity)
-
-                batch_big_image.append(self.image_transform(Image.fromarray(big_image)))
-                batch_weight_character.append(weight_character)
-                batch_weight_affinity.append(weight_affinity)
-        else:
-            for _, _, _, fn in batch:
-                big_image = np.load(fn.parent / f"{fn.stem}_{self.image_size}_image.npy")
-                weight_character = np.load(fn.parent / f"{fn.stem}_{self.image_size}_weight_character.npy")
-                weight_affinity = np.load(fn.parent / f"{fn.stem}_{self.image_size}_weight_affinity.npy")
+                if self.save_data:
+                    np.save(fn.parent / f"{fn.stem}_{self.image_size}_image.npy" , big_image)
+                    np.save(fn.parent / f"{fn.stem}_{self.image_size}_weight_character.npy", weight_character)
+                    np.save(fn.parent / f"{fn.stem}_{self.image_size}_weight_affinity.npy", weight_affinity)
 
                 batch_big_image.append(self.image_transform(Image.fromarray(big_image)))
                 batch_weight_character.append(weight_character)

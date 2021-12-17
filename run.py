@@ -23,6 +23,8 @@ if __name__ == "__main__":
                         help="Number of workers for dataloader")
     parser.add_argument("--batch_size", "-bs", type=int, default=4,
                         help="batch size")
+    parser.add_argument("--preprocessed", action="store_true",
+                        help="using preprocessed data")
     args = parser.parse_args()
 
     # setting
@@ -32,7 +34,7 @@ if __name__ == "__main__":
 
     # 다양한 한글 데이터
     custom_collate = CustomCollate(image_size=cfg.craft.image_size,
-                                     save_preprocessed=False)
+                                   load_preprocessed_data=args.preprocessed)
 
     train_set = CustomDataset(data_dir=cfg.train_data_path)
     train_dataloader = DataLoader(train_set, batch_size=cfg.batch_size,
