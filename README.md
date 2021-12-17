@@ -33,7 +33,6 @@ val_data_path: <your validate data path>
 
 These two setting is all you need to edit.  
 
-
 Now you are ready to train your model. But the training might be very slow because of data processing time at making character and affinity heatmap.   
 
 When it comes to train detecting text in high resolution documents, the heatmap processing is very slow.
@@ -49,7 +48,7 @@ python preprocess.py --setting settings/default.yaml --num_workers 16 --batch_si
 ## Train
 
 ```bash
-python run.py --setting settings/default.yaml --version 0 --num_workers 16 -bs 4
+python run.py --setting settings/default.yaml --version 0 --num_workers 16 -bs 4 --preprocessed
 ```
 
 To monitor the training progress, use tensorboard.
